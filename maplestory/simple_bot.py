@@ -2,10 +2,18 @@ import threading
 from maplestory_telemetry import *
 import time
 import pyautogui
+import numpy as np
+
 
 last_hp_percentage = -1.0
 last_mp_percentage = -1.0
 last_char_position = -1
+curr_direction = 'right'
+
+def pressKey(key, duration=0.0):
+    pyautogui.keyDown(key)
+    time.sleep(duration)
+    pyautogui.keyUp(key)
 
 def update_hp_percentage():
     global last_hp_percentage
@@ -36,16 +44,63 @@ def update_telemetry():
     update_char_position_thread.start()
 
 def hp_pot_bot():
-    global last_hp_percentage
+    global last_hp_percentage, hp_threshold, hp_key
     while True:
-
+        if last_hp_percentage <= hp_threshold:
+            pressKey(hp_key)
         time.sleep(1.5)
+
+def mp_pot_bot():
+    global last_mp_percentage, mp_threshold, mp_key
+    while True:
+        if last_mp_percentage <= mp_threshold:
+            pressKey(mp_key)
+        time.sleep(1.5)
+
+def navigate():
+    global curr_direction
+    if curr_direction == 'right' and last_char_position > right_boundary:
+        curr_direction = 'left'
+        return
+    elif curr_direction == 'left' and last_char_position < left_boundary:
+        curr_direction = 'right'
+        return
+    pressKey(curr_direction, movement_duration)
+
+def attack():
+    global attack_key
+    sample = np.random.binomial(num_trials, prob_success)
+    for i in range (0, min_attacks + sample):
+        pressKey(attack_key,.25)
+
+
+def navigate_attack():
+    global last_char_position
+    while True:
+        for i in range(0, interval_per_cycle):
+            attack()
+            navigate()
+            attack()
+
+
+
 def start_bot():
+    hp_pot_bot_thread = threading.Thread(target=hp_pot_bot)
+    hp_pot_bot_thread.start()
+
+    mp_pot_bot_thread = threading.Thread(target=mp_pot_bot)
+    mp_pot_bot_thread.start()
+
+    navigate_attack_thread = threading.Thread(target=navigate_attack)
+    navigate_attack_thread.start()
 
 
 def start_processes():
     telemetry_thread = threading.Thread(target=update_telemetry)
     telemetry_thread.start()
+
+    start_bot_thread = threading.Thread(target=start_bot)
+    start_bot_thread.start()
 
     print_telemetry_thread = threading.Thread(target=print_telemetry)
     print_telemetry_thread.start()
