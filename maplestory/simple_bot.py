@@ -19,19 +19,19 @@ def update_hp_percentage():
     global last_hp_percentage
     while True:
         last_hp_percentage = get_hp_percentage()
-        time.sleep(1.5)
+        time.sleep(1)
 
 def update_mp_percentage():
     global last_mp_percentage
     while True:
         last_mp_percentage = get_mp_percentage()
-        time.sleep(1.5)
+        time.sleep(1)
 
 def update_char_position():
     global last_char_position
     while True:
         last_char_position = get_char_x_map_position()
-        time.sleep(1.5)
+        time.sleep(1)
 
 def update_telemetry():
     update_hp_thread = threading.Thread(target=update_hp_percentage)
@@ -48,14 +48,14 @@ def hp_pot_bot():
     while True:
         if last_hp_percentage <= hp_threshold:
             pressKey(hp_key)
-        time.sleep(1.5)
+        time.sleep(1)
 
 def mp_pot_bot():
     global last_mp_percentage, mp_threshold, mp_key
     while True:
         if last_mp_percentage <= mp_threshold:
             pressKey(mp_key)
-        time.sleep(1.5)
+        time.sleep(1)
 
 def navigate():
     global curr_direction
@@ -71,7 +71,7 @@ def attack():
     global attack_key
     sample = np.random.binomial(num_trials, prob_success)
     for i in range (0, min_attacks + sample):
-        pressKey(attack_key,.25)
+        pressKey(attack_key, attack_duration)
 
 
 def navigate_attack():
@@ -109,6 +109,6 @@ def print_telemetry():
     global last_hp_percentage, last_mp_percentage, last_char_position
     while True:
         print("HP Percentage:", int(last_hp_percentage), " MP Percentage:", int(last_mp_percentage), " Char Position:", int(last_char_position))
-        time.sleep(5)
+        time.sleep(1)
 
 start_processes()
